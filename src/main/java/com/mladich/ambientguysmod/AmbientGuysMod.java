@@ -1,7 +1,9 @@
 package com.mladich.ambientguysmod;
 
+import com.mladich.ambientguysmod.entity.ModEntities;
+import com.mladich.ambientguysmod.entity.client.RockeaterGnomeRenderer;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -24,7 +26,7 @@ public class AmbientGuysMod {
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
-
+        ModEntities.register(modEventBus); // register mobs
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -45,9 +47,7 @@ public class AmbientGuysMod {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            EntityRenderers.register(ModEntities.RockeaterGnome.get(), RockeaterGnomeRenderer::new);
         }
     }
 }
