@@ -14,7 +14,7 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<RockeaterGnomeEntity>> RockeaterGnome =
             ENTITY_TYPES.register("rockeatergnome", () ->EntityType.Builder.of(RockeaterGnomeEntity::new, MobCategory.CREATURE)
-            .sized(1f,2f)
+            .sized(1f,1.5f)
             .build("rockeatergnome"));
 
     public static void register(IEventBus eventBus) {

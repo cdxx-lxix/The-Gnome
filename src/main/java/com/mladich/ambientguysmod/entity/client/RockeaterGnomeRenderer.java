@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RockeaterGnomeRenderer extends MobRenderer<RockeaterGnomeEntity, RockeaterGnomeModel<RockeaterGnomeEntity>> {
     public RockeaterGnomeRenderer(EntityRendererProvider.Context pContext) {
-        super(pContext, new RockeaterGnomeModel<>(pContext.bakeLayer(ModModelLayers.ROCKEATER_LAYER)), 2f);
+        super(pContext, new RockeaterGnomeModel<>(pContext.bakeLayer(ModModelLayers.ROCKEATER_LAYER)), 0.7f);
     }
 
     @Override

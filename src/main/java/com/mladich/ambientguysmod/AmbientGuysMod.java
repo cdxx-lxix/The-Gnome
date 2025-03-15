@@ -15,6 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import software.bernie.geckolib.GeckoLib;
 
 @Mod(AmbientGuysMod.MODID)
 public class AmbientGuysMod {
@@ -26,6 +27,9 @@ public class AmbientGuysMod {
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
+
+        GeckoLib.initialize();
+
         ModEntities.register(modEventBus); // register mobs
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

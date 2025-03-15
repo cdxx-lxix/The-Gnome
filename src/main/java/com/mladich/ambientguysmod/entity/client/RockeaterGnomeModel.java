@@ -44,7 +44,7 @@ public class RockeaterGnomeModel<T extends Entity> extends HierarchicalModel<T> 
 
         PartDefinition rockeatergnome = partdefinition.addOrReplaceChild("rockeatergnome", CubeListBuilder.create(), PartPose.offset(0.0F, 9.0F, 0.0F));
 
-        PartDefinition head = rockeatergnome.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offset(0.0F, 15.0F, 0.0F));
+        PartDefinition head = rockeatergnome.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offset(0.0F, -2.0F, 0.0F));
 
         PartDefinition hat = head.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(0, 27).addBox(-4.0F, 4.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
                 .texOffs(28, 0).addBox(3.0F, 4.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
@@ -59,10 +59,10 @@ public class RockeaterGnomeModel<T extends Entity> extends HierarchicalModel<T> 
                 .texOffs(44, 22).addBox(-1.0F, -5.0F, -1.0F, 2.0F, 3.0F, 2.0F, new CubeDeformation(0.0F))
                 .texOffs(18, 31).addBox(-0.5F, -7.0F, -0.5F, 1.0F, 2.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(28, 9).addBox(-2.0F, -2.0F, -2.0F, 1.0F, 3.0F, 4.0F, new CubeDeformation(0.0F))
-                .texOffs(18, 27).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -27.0F, 0.0F));
+                .texOffs(18, 27).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 3.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -10.0F, 0.0F));
 
         PartDefinition head_phys = head.addOrReplaceChild("head_phys", CubeListBuilder.create().texOffs(40, 51).addBox(-2.0F, -7.0F, -2.0F, 4.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
-                .texOffs(0, 16).addBox(-3.0F, -5.0F, -3.0F, 6.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -17.0F, 0.0F));
+                .texOffs(0, 16).addBox(-3.0F, -5.0F, -3.0F, 6.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         PartDefinition torso = rockeatergnome.addOrReplaceChild("torso", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -5.0F, -3.0F, 8.0F, 10.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 3.0F, 0.0F));
 
@@ -95,15 +95,15 @@ public class RockeaterGnomeModel<T extends Entity> extends HierarchicalModel<T> 
 
         this.applyHeadRotation(pNetHeadYaw, pHeadPitch, pAgeInTicks);
 
-        this.animateWalk(ModAnimationDefinitions.ROCKEATER_WALK, pLimbSwing, pLimbSwingAmount, 2f, 2.5f);
+        this.animateWalk(ModAnimationDefinitions.ROCKEATER_WALK, pLimbSwing, pLimbSwingAmount, 1f, 2f);
         this.animate(((RockeaterGnomeEntity) pEntity).idleAnimationState, ModAnimationDefinitions.ROCKEATER_IDLE, pAgeInTicks, 1f);
     }
 
     private void applyHeadRotation(float pNetHeadYaw, float pHeadPitch, float pAgeInTicks) {
         pNetHeadYaw = Mth.clamp(pNetHeadYaw, -30.0F, 30.0F);
-        pHeadPitch = Mth.clamp(pHeadPitch, -25.0F, 45.0F);
+        pHeadPitch = Mth.clamp(pHeadPitch, -15.0F, 15.0F);
 
-        this.head.yRot = pNetHeadYaw * ((float)Math.PI / 100F);
-        this.head.xRot = pHeadPitch * ((float)Math.PI / 100F);
+        this.head.yRot = pNetHeadYaw * ((float)Math.PI / 180F);
+        this.head.xRot = pHeadPitch * ((float)Math.PI / 180F);
     }
 }
