@@ -1,0 +1,23 @@
+{
+  "entity.rockeatergnome.ambient": {
+    "sounds": [
+      "ambientguys:entity/rockeatergnome/ambient_1",
+      "ambientguys:entity/rockeatergnome/ambient_2"
+    ],
+    "subtitle": "subtitles.ambientguys.rockeatergnome.ambient"
+  },
+  "entity.rockeatergnome.death": {
+    "sounds": [
+      "ambientguys:entity/rockeatergnome/death_1",
+      "ambientguys:entity/rockeatergnome/death_2"
+    ],
+    "subtitle": "subtitles.ambientguys.rockeatergnome.death"
+  },
+  "entity.rockeatergnome.hurt": {
+    "sounds": [
+      "ambientguys:entity/rockeatergnome/hurt_1",
+      "ambientguys:entity/rockeatergnome/hurt_2"
+    ],
+    "subtitle": "subtitles.ambientguys.rockeatergnome.hurt"
+  }
+}

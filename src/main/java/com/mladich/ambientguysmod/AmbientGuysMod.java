@@ -1,8 +1,8 @@
 package com.mladich.ambientguysmod;
 
 import com.mladich.ambientguysmod.entity.ModEntities;
+import com.mladich.ambientguysmod.entity.ModSounds;
 import com.mladich.ambientguysmod.entity.client.RockeaterGnomeRenderer;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,13 +14,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 
 @Mod(AmbientGuysMod.MODID)
 public class AmbientGuysMod {
     public static final String MODID = "ambientguys";
-    private static final Logger LOGGER = LogUtils.getLogger();
+//    private static final Logger LOGGER = LogUtils.getLogger();
 
     public AmbientGuysMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -31,6 +30,7 @@ public class AmbientGuysMod {
         GeckoLib.initialize();
 
         ModEntities.register(modEventBus); // register mobs
+        ModSounds.SOUNDS.register(modEventBus); // register sounds
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
