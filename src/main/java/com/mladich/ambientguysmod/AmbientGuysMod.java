@@ -2,6 +2,7 @@ package com.mladich.ambientguysmod;
 
 import com.mladich.ambientguysmod.entity.ModEntities;
 import com.mladich.ambientguysmod.entity.ModSounds;
+import com.mladich.ambientguysmod.entity.ModSpawns;
 import com.mladich.ambientguysmod.entity.client.RockeaterGnomeRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,6 +34,12 @@ public class AmbientGuysMod {
         ModSounds.SOUNDS.register(modEventBus); // register sounds
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
+    @SubscribeEvent
+    public void onSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(ModSpawns::SpawnPlacement);
+    }
+
 
     private void commonSetup(final FMLCommonSetupEvent event) {
 

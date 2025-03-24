@@ -1,18 +1,18 @@
 package com.mladich.ambientguysmod.entity.ag_entities;
 
 import com.mladich.ambientguysmod.entity.ModSounds;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -46,6 +48,19 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(PANIC, false);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putBoolean("Panic", this.isPanicking());
+    }
+
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setPanicking(compound.getBoolean("Panic"));
     }
 
     public boolean isPanicking() {
@@ -90,9 +105,14 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 4, this::predicate));
     }
+
+
     @Override
     public void tick() {
         super.tick();
+        if (panicCooldown > 0) {
+            panicCooldown--;
+        }
     }
 
     @Override
@@ -143,21 +163,12 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         }
 
         @Override
-        public void tick() {
-            super.tick();
-            if (panicCooldown > 0) {
-                panicCooldown--;
-            }
-        }
-
-        @Override
         public void start() {
             if (panicCooldown == 0) {
                 super.start();
                 RockeaterGnomeEntity.this.setPanicking(true);
-                panicCooldown = 100; //Set timer for 5 seconds
+                panicCooldown = 200; //Set timer for 10 seconds
             }
-            System.out.println(RockeaterGnomeEntity.this.isPanicking()); // TODO: REMOVE
         }
 
         @Override
@@ -165,7 +176,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
             if (panicCooldown == 1) { // Stops panic one tick before timer runs out
                 super.stop();
                 RockeaterGnomeEntity.this.setPanicking(false);
-                System.out.println(RockeaterGnomeEntity.this.isPanicking()); // TODO: REMOVE
             }
         }
 
@@ -203,6 +213,11 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
+    public int getExperienceReward() {
+        return this.random.nextInt(2, 5);
+    }
+
+    @Override
     public @Nullable AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
         return null;
     }
@@ -224,8 +239,12 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     @Override
     protected SoundEvent getAmbientSound() {
+        // I've tried to make a randomizer with aiStep(), handleEntityEvent() and so on.
+        // Got fed up with this crap so now instead of code I'm using empty sound files lol.
+        // Subtitles removed to avoid confusion
         return ModSounds.ROCKEATER_AMBIENT.get();
     }
+
 
     @Override
     protected SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
@@ -235,5 +254,18 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     @Override
     protected SoundEvent getDeathSound() {
         return ModSounds.ROCKEATER_DEATH.get();
+    }
+
+    public static boolean checkRockeaterGnomeSpawnRules(EntityType<RockeaterGnomeEntity> pBat, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
+        if (pPos.getY() >= pLevel.getSeaLevel()) {
+            return false;
+        } else {
+            int i = pLevel.getMaxLocalRawBrightness(pPos);
+            int j = 4;
+             if (pRandom.nextBoolean()) {
+                return false;
+            }
+            return i <= pRandom.nextInt(j) && checkMobSpawnRules(pBat, pLevel, pSpawnType, pPos, pRandom);
+        }
     }
 }

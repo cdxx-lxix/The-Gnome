@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#forge:is_cave",
+  "spawners": {
+    "type": "ambientguys:rockeatergnome",
+    "weight": 99,
+    "minCount": 1,
+    "maxCount": 5
+  }
+}

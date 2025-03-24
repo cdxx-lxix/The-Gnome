@@ -13,7 +13,7 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, AmbientGuysMod.MODID);
 
     public static final RegistryObject<EntityType<RockeaterGnomeEntity>> RockeaterGnome =
-            ENTITY_TYPES.register("rockeatergnome", () ->EntityType.Builder.of(RockeaterGnomeEntity::new, MobCategory.CREATURE)
+            ENTITY_TYPES.register("rockeatergnome", () ->EntityType.Builder.of(RockeaterGnomeEntity::new, MobCategory.AMBIENT)
             .sized(1f,1.5f)
             .build("rockeatergnome"));
 
