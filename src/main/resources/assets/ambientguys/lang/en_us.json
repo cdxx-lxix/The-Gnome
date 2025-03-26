@@ -1,6 +1,7 @@
 {
-  "subtitles.rockeatergnome.ambient": "WOOO",
-  "subtitles.rockeatergnome.death": "*evil laughs*",
-  "subtitles.rockeatergnome.hurt": "OOF",
-  "entity.ambientguys.rockeatergnome": "Rockeater Gnome"
+  "subtitles.rockeatergnome.death": "Gnome dies",
+  "subtitles.rockeatergnome.teleport": "Evil laughs",
+  "subtitles.rockeatergnome.hurt": "Gnome suffers",
+  "entity.ambientguys.rockeatergnome": "Rockeater Gnome",
+  "item.ambientguys.rockeatergnome_spawn_egg": "Rockeater Gnome Spawn Egg"
 }

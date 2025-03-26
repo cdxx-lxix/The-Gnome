@@ -12,8 +12,12 @@ import software.bernie.geckolib.model.data.EntityModelData;
 
 public class RockeaterGnomeModel extends GeoModel<RockeaterGnomeEntity> {
     private final ResourceLocation model = new ResourceLocation(AmbientGuysMod.MODID, "geo/entity/rockeatergnome.geo.json");
-    private final ResourceLocation texture = new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png");
+//    private final ResourceLocation texture = new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png");
     private final ResourceLocation animations = new ResourceLocation(AmbientGuysMod.MODID, "animations/entity/rockeatergnome.animation.json");
+    private static final ResourceLocation[] gnomes = new ResourceLocation[]{
+            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png"), // Adult
+            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome2.png"), // Senior
+            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome3.png")}; // Old
 
 
     @Override
@@ -36,7 +40,7 @@ public class RockeaterGnomeModel extends GeoModel<RockeaterGnomeEntity> {
 
     @Override
     public ResourceLocation getTextureResource(RockeaterGnomeEntity animatable) {
-        return this.texture;
+        return  gnomes[animatable.getTextureVariant()];
     }
 
     @Override
