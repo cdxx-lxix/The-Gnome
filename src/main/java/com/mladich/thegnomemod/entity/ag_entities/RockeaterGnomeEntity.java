@@ -306,9 +306,12 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         } else {
             int i = pLevel.getMaxLocalRawBrightness(pPos);
             int j = 4;
-             if (pRandom.nextBoolean()) {
-                return false;
-            }
+
+            // Cuts spawn rate two times
+//             if (pRandom.nextBoolean()) {
+//                return false;
+//            }
+
             return i <= pRandom.nextInt(j) && checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
         }
     }

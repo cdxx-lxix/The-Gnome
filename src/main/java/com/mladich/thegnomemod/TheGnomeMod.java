@@ -3,7 +3,6 @@ package com.mladich.thegnomemod;
 import com.mladich.thegnomemod.entity.ModEntities;
 import com.mladich.thegnomemod.entity.ModItems;
 import com.mladich.thegnomemod.entity.ModSounds;
-import com.mladich.thegnomemod.entity.ModSpawns;
 import com.mladich.thegnomemod.entity.client.RockeaterGnomeRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -41,7 +40,7 @@ public class TheGnomeMod {
 
     @SubscribeEvent
     public void onSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(ModSpawns::SpawnPlacement);
+//        event.enqueueWork(ModSpawns::SpawnPlacement);
     }
 
 
