@@ -1,7 +1,7 @@
-package com.mladich.ambientguysmod.event;
+package com.mladich.thegnomemod.event;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
-import com.mladich.ambientguysmod.entity.ModItemModelProvider;
+import com.mladich.thegnomemod.TheGnomeMod;
+import com.mladich.thegnomemod.entity.ModItemModelProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -9,7 +9,7 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AmbientGuysMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = TheGnomeMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModDataGenerator {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {

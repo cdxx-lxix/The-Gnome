@@ -1,10 +1,10 @@
-package com.mladich.ambientguysmod;
+package com.mladich.thegnomemod;
 
-import com.mladich.ambientguysmod.entity.ModEntities;
-import com.mladich.ambientguysmod.entity.ModItems;
-import com.mladich.ambientguysmod.entity.ModSounds;
-import com.mladich.ambientguysmod.entity.ModSpawns;
-import com.mladich.ambientguysmod.entity.client.RockeaterGnomeRenderer;
+import com.mladich.thegnomemod.entity.ModEntities;
+import com.mladich.thegnomemod.entity.ModItems;
+import com.mladich.thegnomemod.entity.ModSounds;
+import com.mladich.thegnomemod.entity.ModSpawns;
+import com.mladich.thegnomemod.entity.client.RockeaterGnomeRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,12 +20,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import software.bernie.geckolib.GeckoLib;
 
 
-@Mod(AmbientGuysMod.MODID)
-public class AmbientGuysMod {
-    public static final String MODID = "ambientguys";
+@Mod(TheGnomeMod.MODID)
+public class TheGnomeMod {
+    public static final String MODID = "thegnome";
 //    private static final Logger LOGGER = LogUtils.getLogger();
 
-    public AmbientGuysMod() {
+    public TheGnomeMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);

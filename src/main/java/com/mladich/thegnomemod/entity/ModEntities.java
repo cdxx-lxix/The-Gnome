@@ -1,7 +1,7 @@
-package com.mladich.ambientguysmod.entity;
+package com.mladich.thegnomemod.entity;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
-import com.mladich.ambientguysmod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.TheGnomeMod;
+import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModEntities {
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, AmbientGuysMod.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, TheGnomeMod.MODID);
 
     public static final RegistryObject<EntityType<RockeaterGnomeEntity>> RockeaterGnome =
             ENTITY_TYPES.register("rockeatergnome", () ->EntityType.Builder.of(RockeaterGnomeEntity::new, MobCategory.AMBIENT)

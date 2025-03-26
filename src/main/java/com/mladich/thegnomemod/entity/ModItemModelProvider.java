@@ -1,13 +1,13 @@
-package com.mladich.ambientguysmod.entity;
+package com.mladich.thegnomemod.entity;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
+import com.mladich.thegnomemod.TheGnomeMod;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ModItemModelProvider extends ItemModelProvider {
     public ModItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, AmbientGuysMod.MODID, existingFileHelper);
+        super(output, TheGnomeMod.MODID, existingFileHelper);
     }
 
     @Override

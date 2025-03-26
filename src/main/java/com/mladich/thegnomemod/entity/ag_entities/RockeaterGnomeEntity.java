@@ -1,6 +1,6 @@
-package com.mladich.ambientguysmod.entity.ag_entities;
+package com.mladich.thegnomemod.entity.ag_entities;
 
-import com.mladich.ambientguysmod.entity.ModSounds;
+import com.mladich.thegnomemod.entity.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

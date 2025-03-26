@@ -1,12 +1,12 @@
-package com.mladich.ambientguysmod.entity;
+package com.mladich.thegnomemod.entity;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
-import com.mladich.ambientguysmod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.TheGnomeMod;
+import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AmbientGuysMod.MODID)
+@Mod.EventBusSubscriber(modid = TheGnomeMod.MODID)
 public class ModSpawns {
     public static void SpawnPlacement() {
         SpawnPlacements.register(ModEntities.RockeaterGnome.get(),

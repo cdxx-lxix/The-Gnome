@@ -1,13 +1,13 @@
-package com.mladich.ambientguysmod.event;
+package com.mladich.thegnomemod.event;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
-import com.mladich.ambientguysmod.entity.ModEntities;
-import com.mladich.ambientguysmod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.TheGnomeMod;
+import com.mladich.thegnomemod.entity.ModEntities;
+import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AmbientGuysMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = TheGnomeMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEventBusEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {

@@ -1,7 +1,7 @@
-package com.mladich.ambientguysmod.entity.client;
+package com.mladich.thegnomemod.entity.client;
 
-import com.mladich.ambientguysmod.AmbientGuysMod;
-import com.mladich.ambientguysmod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.TheGnomeMod;
+import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
@@ -11,13 +11,13 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.model.data.EntityModelData;
 
 public class RockeaterGnomeModel extends GeoModel<RockeaterGnomeEntity> {
-    private final ResourceLocation model = new ResourceLocation(AmbientGuysMod.MODID, "geo/entity/rockeatergnome.geo.json");
+    private final ResourceLocation model = new ResourceLocation(TheGnomeMod.MODID, "geo/entity/rockeatergnome.geo.json");
 //    private final ResourceLocation texture = new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png");
-    private final ResourceLocation animations = new ResourceLocation(AmbientGuysMod.MODID, "animations/entity/rockeatergnome.animation.json");
+    private final ResourceLocation animations = new ResourceLocation(TheGnomeMod.MODID, "animations/entity/rockeatergnome.animation.json");
     private static final ResourceLocation[] gnomes = new ResourceLocation[]{
-            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png"), // Adult
-            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome2.png"), // Senior
-            new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome3.png")}; // Old
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome.png"), // Adult
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome2.png"), // Senior
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome3.png")}; // Old
 
 
     @Override
