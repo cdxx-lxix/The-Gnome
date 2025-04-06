@@ -1,7 +1,6 @@
 package com.mladich.thegnomemod.entity.ag_entities;
 
 import com.mladich.thegnomemod.Config;
-import com.mladich.thegnomemod.TheGnomeMod;
 import com.mladich.thegnomemod.entity.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -355,34 +354,8 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
      * Changes gnome's spawning area to caves only (at least it tries to)
      */
     public static boolean checkRockeaterGnomeSpawnRules(EntityType<RockeaterGnomeEntity> pGnome, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
-//        if ( pPos.getY() < 60 && pLevel.getMaxLocalRawBrightness(pPos) <= 4 && pLevel.getBlockState(pPos.below()).isSolidRender(pLevel, pPos.below())) {
-//            TheGnomeMod.LOG.error("/tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
-//            TheGnomeMod.LOG.warn("The Gnome had spawned");
-//            return checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
-//        } else {
-//            TheGnomeMod.LOG.debug("Current Y: " + pPos.getY());
-//            TheGnomeMod.LOG.warn("The Gnome won't spawn");
-//            return false;
-//        }
-
-        if (pPos.getY() < pLevel.getSeaLevel() - 10)
-        {
-            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
-//        if (pPos.getY() >= pLevel.getSeaLevel() - 10) {
-//            return false;
-//        } else {
-//            int i = pLevel.getMaxLocalRawBrightness(pPos);
-//            int j = 4;
-//            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
-//            return i <= pRandom.nextInt(j) && checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
-//        }
+        //            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
+        return pPos.getY() < pLevel.getSeaLevel() - 10;
     }
 
     @Override
