@@ -12,17 +12,21 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 
 
 @Mod(TheGnomeMod.MODID)
 public class TheGnomeMod {
     public static final String MODID = "thegnome";
-//    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOG = LogManager.getLogger(TheGnomeMod.class.getSimpleName());
 
     public TheGnomeMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -35,7 +39,7 @@ public class TheGnomeMod {
         ModEntities.register(modEventBus); // register mobs
         ModSounds.SOUNDS.register(modEventBus); // register sounds
         ModItems.ITEMS.register(modEventBus); // register one spawn egg
-//        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     @SubscribeEvent

@@ -2,17 +2,9 @@
   "entity.rockeatergnome.ambient": {
     "sounds": [
       "thegnome:entity/rockeatergnome/ambient_1",
-      "thegnome:entity/rockeatergnome/ambient_2",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence",
-      "thegnome:entity/rockeatergnome/ambient_silence"
-    ]
+      "thegnome:entity/rockeatergnome/ambient_2"
+    ],
+    "subtitle": "subtitles.rockeatergnome.ambient"
   },
   "entity.rockeatergnome.death": {
     "sounds": [

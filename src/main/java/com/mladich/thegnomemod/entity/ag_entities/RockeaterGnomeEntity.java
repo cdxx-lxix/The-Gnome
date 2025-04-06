@@ -1,5 +1,7 @@
 package com.mladich.thegnomemod.entity.ag_entities;
 
+import com.mladich.thegnomemod.Config;
+import com.mladich.thegnomemod.TheGnomeMod;
 import com.mladich.thegnomemod.entity.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +12,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -26,6 +29,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -52,6 +56,8 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     private static final EntityDataAccessor<Boolean> PANIC = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.INT);
     private int panicCooldown = 0;
+    private int ambientSoundTime = 0;
+    private int ambientSoundInterval = 0;
 
     /**
      * Without synched data the panic state is unrelyable and won't be saved on exit or pause
@@ -95,21 +101,21 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return TamableAnimal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 10)
-                .add(Attributes.MOVEMENT_SPEED, 0.5D)
+                .add(Attributes.MAX_HEALTH, 15)
+                .add(Attributes.MOVEMENT_SPEED, 0.3D)
                 .add(Attributes.FOLLOW_RANGE, 10);
     }
+
 
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Prevents drowning, lol
         this.goalSelector.addGoal(1, new RockeaterGnomeEntity.RockeaterGnomePanicGoal(1.5D)); // He will prioritize panic above anything rather than drowning
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him standup without command
-        this.goalSelector.addGoal(2, new TemptGoal(this, 1.40, Ingredient.of(Items.COBBLESTONE), false)); // He likes cobblestone a bit more
-        this.goalSelector.addGoal(2, new TemptGoal(this, 1.20, Ingredient.of(Items.COBBLED_DEEPSLATE), true)); // Deepslate is fine too
+        this.goalSelector.addGoal(2, new TemptGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
         this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.10)); // Prevents the desire to swim
         this.goalSelector.addGoal(3, new RandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
-        this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false)); // He will follow his owner but all of the things on top can get him distracted
+        this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, Config.GnomeSettings.getOwnerFollowRange(), Config.GnomeSettings.getOwnerFollowStop(), false)); // He will follow his owner but all of the things on top can get him distracted
     }
 
     /**
@@ -269,6 +275,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
             if (entity != null && !(entity instanceof Player) && !(entity instanceof AbstractArrow)) {
                 pAmount = (pAmount + 1.0F) / 2.0F;
             }
+            this.resetAmbientSoundTimeAndInterval();
             this.teleport();
             return super.hurt(pSource, pAmount);
         }
@@ -278,12 +285,37 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     /** Sound Events block  */
     @Override
+    public void baseTick() {
+        super.baseTick();
+        if (this.isAlive() && (this.ambientSoundInterval == this.ambientSoundTime++)) {
+            this.resetAmbientSoundTimeAndInterval();
+            this.playAmbientSound();
+        }
+    }
+
+    @Override
+    public int getAmbientSoundInterval() {
+        return this.random.nextIntBetweenInclusive(Config.GnomeSettings.getAmbientIntervalMin(), Config.GnomeSettings.getAmbientIntervalMax());
+    }
+
+    private void resetAmbientSoundTimeAndInterval() {
+        this.ambientSoundInterval = getAmbientSoundInterval();
+        this.ambientSoundTime = 0;
+    }
+
+    @Override
     protected SoundEvent getAmbientSound() {
-        // I've tried to make a randomizer with aiStep(), handleEntityEvent() and so on.
-        // Got fed up with this crap so now instead of code I'm using empty sound files lol.
-        // Subtitles removed to avoid confusion
         return ModSounds.ROCKEATER_AMBIENT.get();
     }
+
+    public void playAmbientSound() {
+        SoundEvent soundevent = this.getAmbientSound();
+        if (soundevent != null) {
+            this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+        }
+
+    }
+
     @Override
     protected SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
         return ModSounds.ROCKEATER_HURT.get();
@@ -298,27 +330,47 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     /**
-     * Changes gnome's spawning to be like minecraft:bat (also bat's code)
+     * Changes gnome's spawning area to caves only (at least it tries to)
      */
     public static boolean checkRockeaterGnomeSpawnRules(EntityType<RockeaterGnomeEntity> pGnome, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
-        if (pPos.getY() >= pLevel.getSeaLevel()) {
-            return false;
-        } else {
-            int i = pLevel.getMaxLocalRawBrightness(pPos);
-            int j = 4;
+//        if ( pPos.getY() < 60 && pLevel.getMaxLocalRawBrightness(pPos) <= 4 && pLevel.getBlockState(pPos.below()).isSolidRender(pLevel, pPos.below())) {
+//            TheGnomeMod.LOG.error("/tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
+//            TheGnomeMod.LOG.warn("The Gnome had spawned");
+//            return checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
+//        } else {
+//            TheGnomeMod.LOG.debug("Current Y: " + pPos.getY());
+//            TheGnomeMod.LOG.warn("The Gnome won't spawn");
+//            return false;
+//        }
 
-            // Cuts spawn rate two times
-//             if (pRandom.nextBoolean()) {
-//                return false;
-//            }
-
-            return i <= pRandom.nextInt(j) && checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
+        if (pPos.getY() < pLevel.getSeaLevel() - 10)
+        {
+            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
+            return true;
         }
+        else
+        {
+            return false;
+        }
+
+//        if (pPos.getY() >= pLevel.getSeaLevel() - 10) {
+//            return false;
+//        } else {
+//            int i = pLevel.getMaxLocalRawBrightness(pPos);
+//            int j = 4;
+//            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
+//            return i <= pRandom.nextInt(j) && checkMobSpawnRules(pGnome, pLevel, pSpawnType, pPos, pRandom);
+//        }
+    }
+
+    @Override
+    public float getWalkTargetValue(BlockPos pPos, LevelReader pLevel) {
+        return 0.0F;
     }
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, SpawnGroupData spawnGroupData, CompoundTag p_146750_) {
-        this.setTextureVariant(this.random.nextIntBetweenInclusive(0, 2)); // Used as array index
+        this.setTextureVariant(this.random.nextIntBetweenInclusive(Config.GnomeSettings.getTextureVariantStart(), Config.GnomeSettings.getTextureVariantEnd())); // Used as array index
         return super.finalizeSpawn(levelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, p_146750_);
     }
 
@@ -327,10 +379,12 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
      */
     @Override
     protected void customServerAiStep() {
-        float f = this.random.nextFloat();
+        if (Config.GnomeSettings.canRandomlyTeleport() && !this.isOrderedToSit()) {
+            float f = this.random.nextFloat();
             if (f > 0.5F && this.random.nextFloat() * 30.0F < (f - 0.4F) * 2.0F) {
                 this.teleport();
             }
+        }
         super.customServerAiStep();
     }
 
