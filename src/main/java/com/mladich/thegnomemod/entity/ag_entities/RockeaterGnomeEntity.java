@@ -112,10 +112,32 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(1, new RockeaterGnomeEntity.RockeaterGnomePanicGoal(1.5D)); // He will prioritize panic above anything rather than drowning
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him standup without command
         this.goalSelector.addGoal(2, new TemptGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
-        this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
+        this.goalSelector.addGoal(2, new RockeaterGnomeEntity.GnomeLookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.10)); // Prevents the desire to swim
-        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
+        this.goalSelector.addGoal(3, new RockeaterGnomeEntity.GnomeRandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
         this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, Config.GnomeSettings.getOwnerFollowRange(), Config.GnomeSettings.getOwnerFollowStop(), false)); // He will follow his owner but all of the things on top can get him distracted
+    }
+
+    class GnomeRandomLookAroundGoal extends RandomLookAroundGoal {
+        private GnomeRandomLookAroundGoal(Mob pMob) {
+            super(pMob);
+        }
+
+        @Override
+        public boolean canUse() {
+            return super.canUse() && !RockeaterGnomeEntity.this.isOrderedToSit();
+        }
+    }
+
+    class GnomeLookAtPlayerGoal extends LookAtPlayerGoal {
+        public GnomeLookAtPlayerGoal(Mob pMob, Class<? extends LivingEntity> pLookAtType, float pLookDistance) {
+            super(pMob, pLookAtType, pLookDistance);
+        }
+
+        @Override
+        public boolean canUse() {
+            return super.canUse() && !RockeaterGnomeEntity.this.isOrderedToSit();
+        }
     }
 
     /**
