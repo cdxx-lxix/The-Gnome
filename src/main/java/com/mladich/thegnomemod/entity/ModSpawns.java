@@ -1,7 +1,7 @@
 package com.mladich.thegnomemod.entity;
 
 import com.mladich.thegnomemod.TheGnomeMod;
-import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.entity.gnome.RockeaterGnomeEntity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

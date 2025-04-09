@@ -1,6 +1,6 @@
 package com.mladich.thegnomemod.entity.client;
 
-import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.entity.gnome.RockeaterGnomeEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 

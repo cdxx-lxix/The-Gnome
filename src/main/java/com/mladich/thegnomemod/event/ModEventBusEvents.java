@@ -2,7 +2,7 @@ package com.mladich.thegnomemod.event;
 
 import com.mladich.thegnomemod.TheGnomeMod;
 import com.mladich.thegnomemod.entity.ModEntities;
-import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.entity.gnome.RockeaterGnomeEntity;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

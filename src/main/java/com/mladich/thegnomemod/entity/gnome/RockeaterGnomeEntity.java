@@ -1,4 +1,4 @@
-package com.mladich.thegnomemod.entity.ag_entities;
+package com.mladich.thegnomemod.entity.gnome;
 
 import com.mladich.thegnomemod.Config;
 import com.mladich.thegnomemod.entity.ModSounds;
@@ -38,12 +38,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
-
-import java.util.List;
 
 public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
@@ -52,9 +52,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private static final EntityDataAccessor<Boolean> PANIC = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.INT);
-    private int panicCooldown = 0;
     private int ambientSoundTime = 0;
     private int ambientSoundInterval = 0;
 
@@ -64,21 +62,18 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(PANIC, false);
         this.entityData.define(VARIANT, 0);
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putBoolean("Panic", this.isPanicking());
         compound.putInt("Variant", this.getTextureVariant());
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        this.setPanicking(compound.getBoolean("Panic"));
         this.setTextureVariant(compound.getInt("Variant"));
     }
 
@@ -88,14 +83,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     public void setTextureVariant(int variant) {
         this.entityData.set(VARIANT, variant);
-    }
-
-    public boolean isPanicking() {
-        return this.entityData.get(PANIC);
-    }
-
-    public void setPanicking(boolean panicking) {
-        this.entityData.set(PANIC, panicking);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -108,37 +95,14 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Prevents drowning, lol
-        this.goalSelector.addGoal(1, new RockeaterGnomeEntity.RockeaterGnomePanicGoal(1.5D)); // He will prioritize panic above anything rather than drowning
+        this.goalSelector.addGoal(1, new PanicGoal(this,1.5D)); // He will prioritize panic above anything rather than drowning
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him standup without command
         this.goalSelector.addGoal(2, new TemptGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
-        this.goalSelector.addGoal(2, new RockeaterGnomeEntity.GnomeLookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
+        this.goalSelector.addGoal(2, new GnomeLookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.10)); // Prevents the desire to swim
-        this.goalSelector.addGoal(3, new RockeaterGnomeEntity.GnomeRandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
-        this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, Config.GnomeSettings.getOwnerFollowRange(), Config.GnomeSettings.getOwnerFollowStop(), false)); // He will follow his owner but all of the things on top can get him distracted
+        this.goalSelector.addGoal(3, new GnomeRandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
+        this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false)); // He will follow his owner but all of the things on top can get him distracted
     }
-
-    class GnomeRandomLookAroundGoal extends RandomLookAroundGoal {
-        private GnomeRandomLookAroundGoal(Mob pMob) {
-            super(pMob);
-        }
-
-        @Override
-        public boolean canUse() {
-            return super.canUse() && !RockeaterGnomeEntity.this.isOrderedToSit();
-        }
-    }
-
-    class GnomeLookAtPlayerGoal extends LookAtPlayerGoal {
-        public GnomeLookAtPlayerGoal(Mob pMob, Class<? extends LivingEntity> pLookAtType, float pLookDistance) {
-            super(pMob, pLookAtType, pLookDistance);
-        }
-
-        @Override
-        public boolean canUse() {
-            return super.canUse() && !RockeaterGnomeEntity.this.isOrderedToSit();
-        }
-    }
-
     /**
      * Subject to change. Some animations doesn't work properly or everytime.
      * */
@@ -146,13 +110,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         if (this.isInSittingPose()) {
             event.getController().setAnimation(RawAnimation.begin().thenPlayAndHold("sit"));
         } else if (event.isMoving()) {
-            if (this.getSpeed() > 0.5D) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("sprint"));
-            } else {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
-            }
-        } else if (this.isPanicking()) {
-            event.getController().setAnimation(RawAnimation.begin().then("panic", Animation.LoopType.PLAY_ONCE));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
         }  else {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("idle2"));
         }
@@ -166,18 +124,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 4, this::predicate));
-    }
-
-
-    /**
-     * Recudes cooldown of panic mode. If it is more than 0 the gnome won't panic again
-     * */
-    @Override
-    public void tick() {
-        super.tick();
-        if (panicCooldown > 0) {
-            panicCooldown--;
-        }
     }
 
     /**
@@ -228,59 +174,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     /**
-     * Gnome is afraid of sticks if it is in a player's hands.
-     * Gnome checks for it and scans the area for players with sticks in their hands
-     * This mechanism has a timer of 10 seconds between each panic activation to trigger custom animation
-     * */
-    class RockeaterGnomePanicGoal extends PanicGoal {
-        public RockeaterGnomePanicGoal(double pSpeedModifier) {
-            super(RockeaterGnomeEntity.this, pSpeedModifier);
-        }
-
-        @Override
-        public void start() {
-            if (panicCooldown == 0) {
-                super.start();
-                RockeaterGnomeEntity.this.setPanicking(true);
-                panicCooldown = 200; //Set timer for 10 seconds
-            }
-        }
-
-        @Override
-        public void stop() {
-            if (panicCooldown == 1) { // Stops panic one tick before timer runs out
-                super.stop();
-                RockeaterGnomeEntity.this.setPanicking(false);
-            }
-        }
-
-        @Override
-        protected boolean shouldPanic() {
-            if (!RockeaterGnomeEntity.this.isPanicking()) {
-                return isPlayerHoldingStickNearby();
-            } else {
-                return this.mob.getLastHurtByMob() != null || this.mob.isFreezing() || this.mob.isOnFire();
-            }
-        }
-
-        // Modified method with distance parameter
-        private boolean isPlayerHoldingStickNearby() {
-            List<Player> nearbyPlayers = this.mob.level().getEntitiesOfClass(
-                    Player.class,
-                    this.mob.getBoundingBox().inflate(6.0) // In radius of 6 blocks
-            );
-
-            for (Player player : nearbyPlayers) {
-                if (player.getMainHandItem().is(Items.STICK) || player.getOffhandItem().is(Items.STICK)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    /**
      *  Modifies receiving damage mechanic (mix of wolf and enderman)
      * */
     @Override
@@ -315,6 +208,12 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
+    public boolean isPushable() {
+        // THE GNOME becomes static when sitting just like a statue
+        return this.isAlive() && !this.isOrderedToSit() && !this.onClimbable();
+    }
+
+    @Override
     public int getAmbientSoundInterval() {
         return this.random.nextIntBetweenInclusive(Config.GnomeSettings.getAmbientIntervalMin(), Config.GnomeSettings.getAmbientIntervalMax());
     }
@@ -334,7 +233,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         if (soundevent != null) {
             this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
         }
-
     }
 
     @Override
@@ -351,7 +249,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     }
 
     /**
-     * Changes gnome's spawning area to caves only (at least it tries to)
+     * Changes gnome's spawning area to caves only (at least it tries to). In the json it is set to minecraft:is_overworld
      */
     public static boolean checkRockeaterGnomeSpawnRules(EntityType<RockeaterGnomeEntity> pGnome, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
         //            TheGnomeMod.LOG.error("GNOME METHOD   /tp {} {} {}", pPos.getX(), pPos.getY(), pPos.getZ());
@@ -360,12 +258,13 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     @Override
     public float getWalkTargetValue(BlockPos pPos, LevelReader pLevel) {
+        // Without overriding this ridiculus bullshit THE GNOME won't spawn at all or only on the surface.
         return 0.0F;
     }
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, SpawnGroupData spawnGroupData, CompoundTag p_146750_) {
-        this.setTextureVariant(this.random.nextIntBetweenInclusive(Config.GnomeSettings.getTextureVariantStart(), Config.GnomeSettings.getTextureVariantEnd())); // Used as array index
+        this.setTextureVariant(this.random.nextIntBetweenInclusive(0, 2));
         return super.finalizeSpawn(levelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, p_146750_);
     }
 

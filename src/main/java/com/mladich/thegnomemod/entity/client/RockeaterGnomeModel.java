@@ -1,7 +1,7 @@
 package com.mladich.thegnomemod.entity.client;
 
 import com.mladich.thegnomemod.TheGnomeMod;
-import com.mladich.thegnomemod.entity.ag_entities.RockeaterGnomeEntity;
+import com.mladich.thegnomemod.entity.gnome.RockeaterGnomeEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
@@ -15,9 +15,9 @@ public class RockeaterGnomeModel extends GeoModel<RockeaterGnomeEntity> {
 //    private final ResourceLocation texture = new ResourceLocation(AmbientGuysMod.MODID, "textures/entity/rockeatergnome.png");
     private final ResourceLocation animations = new ResourceLocation(TheGnomeMod.MODID, "animations/entity/rockeatergnome.animation.json");
     private static final ResourceLocation[] gnomes = new ResourceLocation[]{
-            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome.png"), // Adult
-            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome2.png"), // Senior
-            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/rockeatergnome3.png")}; // Old
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/thegnome.png"), // Adult
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/thegnome2.png"), // Senior
+            new ResourceLocation(TheGnomeMod.MODID, "textures/entity/thegnome3.png")}; // Old
 
 
     @Override
@@ -33,11 +33,13 @@ public class RockeaterGnomeModel extends GeoModel<RockeaterGnomeEntity> {
         }
     }
 
+    @SuppressWarnings("removal")
     @Override
     public ResourceLocation getModelResource(RockeaterGnomeEntity animatable) {
         return this.model;
     }
 
+    @SuppressWarnings("removal")
     @Override
     public ResourceLocation getTextureResource(RockeaterGnomeEntity animatable) {
         return  gnomes[animatable.getTextureVariant()];
