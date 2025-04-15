@@ -20,7 +20,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -131,7 +134,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Prevents drowning, lol
-        this.goalSelector.addGoal(1, new PanicGoal(this,1.5D)); // He will prioritize panic above anything rather than drowning
+        this.goalSelector.addGoal(1, new GnomePanicGoal(this,1.5D)); // He will prioritize panic above anything rather than drowning
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him standup without command
         this.goalSelector.addGoal(1, new GnomeStandStillWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him stop standing without command
         this.goalSelector.addGoal(2, new GnomeTemptationGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
@@ -152,10 +155,14 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("temptation_follow"));
         } else if (this.isTempted()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("temptation_idle"));
-        } else if (event.isMoving()) {
+        }
+//        else if (this.isInPanicMode()) {
+//            event.getController().setAnimation(RawAnimation.begin().thenPlay("panic"));
+//        }
+        else if (event.isMoving()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
         }  else {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+            event.getController().setAnimation(RawAnimation.begin().thenPlay("idle"));
         }
         return PlayState.CONTINUE;
     }
