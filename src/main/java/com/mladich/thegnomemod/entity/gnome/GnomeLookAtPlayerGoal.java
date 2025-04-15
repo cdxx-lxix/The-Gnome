@@ -16,6 +16,6 @@ public class GnomeLookAtPlayerGoal extends LookAtPlayerGoal {
 
     @Override
     public boolean canUse() {
-        return super.canUse() && !gnome.isOrderedToSit();
+        return super.canUse() && !gnome.isOrderedToSit() && !gnome.isStandingStill();
     }
 }

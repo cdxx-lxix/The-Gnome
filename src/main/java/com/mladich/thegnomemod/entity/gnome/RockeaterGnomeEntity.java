@@ -24,7 +24,6 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -53,36 +52,73 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> STANDING = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> TEMPTATION = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> PANIC = SynchedEntityData.defineId(RockeaterGnomeEntity.class, EntityDataSerializers.BOOLEAN);
     private int ambientSoundTime = 0;
     private int ambientSoundInterval = 0;
+//    private final TagKey<Item> gnomeFood = ItemTags.STONE_TOOL_MATERIALS;
 
     /**
-     * Without synched data the panic state is unrelyable and won't be saved on exit or pause
+     * Synced data prevents loosing data and flukes in behavior.
      * */
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(VARIANT, 0);
+        this.entityData.define(STANDING, false);
+        this.entityData.define(TEMPTATION, false);
+        this.entityData.define(PANIC, false);
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("Variant", this.getTextureVariant());
-    }
-
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        this.setTextureVariant(compound.getInt("Variant"));
+        compound.putBoolean("Standing", this.isStandingStill());
+        compound.putBoolean("Temptation", this.isTempted());
+        compound.putBoolean("Panic", this.isInPanicMode());
     }
 
     public int getTextureVariant() {
         return this.entityData.get(VARIANT);
     }
 
+    public boolean isInPanicMode() {
+        return this.entityData.get(PANIC);
+    }
+
+    public boolean isTempted() {
+        return this.entityData.get(TEMPTATION);
+    }
+
+    public boolean isStandingStill() {
+        return this.entityData.get(STANDING);
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setTextureVariant(compound.getInt("Variant"));
+        this.setStandingStill(compound.getBoolean("Standing"));
+        this.setTempted(compound.getBoolean("Temptation"));
+        this.setPanicMode(compound.getBoolean("Panic"));
+    }
+
     public void setTextureVariant(int variant) {
         this.entityData.set(VARIANT, variant);
+    }
+
+    public void setPanicMode(boolean panic) {
+        this.entityData.set(PANIC, panic);
+    }
+
+    public void setTempted(boolean temptation) {
+        this.entityData.set(TEMPTATION, temptation);
+    }
+
+    public void setStandingStill(boolean standing) {
+        this.entityData.set(STANDING, standing);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -97,22 +133,29 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Prevents drowning, lol
         this.goalSelector.addGoal(1, new PanicGoal(this,1.5D)); // He will prioritize panic above anything rather than drowning
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him standup without command
-        this.goalSelector.addGoal(2, new TemptGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
+        this.goalSelector.addGoal(1, new GnomeStandStillWhenOrderedToGoal(this)); // Only panic, drowning  or getting hurt can make him stop standing without command
+        this.goalSelector.addGoal(2, new GnomeTemptationGoal(this, 1.40, Ingredient.of(ItemTags.STONE_TOOL_MATERIALS), false)); // He's a rock eater after all
         this.goalSelector.addGoal(2, new GnomeLookAtPlayerGoal(this, Player.class, 5f)); // Just stare sometimes in your eyes
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.10)); // Prevents the desire to swim
         this.goalSelector.addGoal(3, new GnomeRandomLookAroundGoal(this)); // Head rotation is in com.mladich.ambientguysmod.entity.client.RockeaterGnomeModel.setCustomAnimations
         this.goalSelector.addGoal(4, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false)); // He will follow his owner but all of the things on top can get him distracted
     }
     /**
-     * Subject to change. Some animations doesn't work properly or everytime.
+     *
      * */
     private PlayState predicate(AnimationState<?> event) {
         if (this.isInSittingPose()) {
             event.getController().setAnimation(RawAnimation.begin().thenPlayAndHold("sit"));
+        } else if (this.isStandingStill()) {
+            event.getController().setAnimation(RawAnimation.begin().thenPlayAndHold("idle"));
+        } else if (this.isTempted() && event.isMoving()) {
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("temptation_follow"));
+        } else if (this.isTempted()) {
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("temptation_idle"));
         } else if (event.isMoving()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
         }  else {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("idle2"));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
         }
         return PlayState.CONTINUE;
     }
@@ -142,7 +185,7 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         ItemStack handStack = player.getItemInHand(interactionHand);
 
         if (!this.isTame()) {
-            if (handStack.is(Items.COBBLESTONE) || handStack.is(Items.COBBLED_DEEPSLATE)) {
+            if (handStack.is(ItemTags.STONE_TOOL_MATERIALS)) {
                 if (!player.getAbilities().instabuild) {
                     handStack.shrink(1);
                 }
@@ -157,10 +200,16 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
                 return InteractionResult.sidedSuccess(this.level().isClientSide());
             }
         } else if (this.isTame() && this.isOwnedBy(player)) {
-            if (!this.isFood(handStack)) {
-                this.setOrderedToSit(!this.isOrderedToSit());
+             if (!this.isFood(handStack) && player.isShiftKeyDown()) {
+                // If a player is holding anything but the food and sneaking THE GNOME will stand still
+                this.setStandingStill(!this.isStandingStill());
                 return InteractionResult.sidedSuccess(this.level().isClientSide());
-            } else if (this.getHealth() < this.getMaxHealth()) {
+            } else if (!this.isFood(handStack)) {
+                 // If a player is holding anything but the food THE GNOME will sit
+                 this.setOrderedToSit(!this.isOrderedToSit());
+                 return InteractionResult.sidedSuccess(this.level().isClientSide());
+             }  else if (this.getHealth() < this.getMaxHealth()) {
+                // If a player is holding food then THE GNOME will heal
                 this.gameEvent(GameEvent.EAT, this);
                 this.heal(2.0F);
                 if (!player.getAbilities().instabuild) {
@@ -195,7 +244,10 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
         }
     }
 
-
+    @Override
+    public boolean isFood(@NotNull ItemStack pStack) {
+        return pStack.is(ItemTags.STONE_TOOL_MATERIALS);
+    }
 
     /** Sound Events block  */
     @Override
@@ -209,8 +261,8 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
 
     @Override
     public boolean isPushable() {
-        // THE GNOME becomes static when sitting just like a statue
-        return this.isAlive() && !this.isOrderedToSit() && !this.onClimbable();
+        // THE GNOME becomes static when sitting or standing just like a statue (Terraria inspired)
+        return this.isAlive() && !this.isOrderedToSit() && !this.isStandingStill() && !this.onClimbable();
     }
 
     @Override
@@ -340,11 +392,6 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     @Override
     public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel pLevel, @NotNull AgeableMob pOtherParent) {
         return null;
-    }
-
-    @Override
-    public boolean isFood(@NotNull ItemStack pStack) {
-        return pStack.is(Items.COBBLESTONE) || pStack.is(Items.COBBLED_DEEPSLATE);
     }
 
     @Override
