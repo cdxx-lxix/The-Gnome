@@ -330,9 +330,13 @@ public class RockeaterGnomeEntity extends TamableAnimal implements GeoEntity {
     /**
      * Overrides usual entity's behavior to occasionally teleport (Modified enderman code without block related to light level)
      */
+    private boolean isTeleportationAllowed() {
+        return Config.GnomeSettings.canRandomlyTeleport() && !this.isOrderedToSit() && !this.isStandingStill();
+    }
+
     @Override
     protected void customServerAiStep() {
-        if (Config.GnomeSettings.canRandomlyTeleport() && !this.isOrderedToSit()) {
+        if (this.isTeleportationAllowed()) {
             float f = this.random.nextFloat();
             if (f > 0.5F && this.random.nextFloat() * 30.0F < (f - 0.4F) * 2.0F) {
                 this.teleport();
